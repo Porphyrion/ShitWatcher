@@ -2,9 +2,7 @@
 
 #include "PhoneBook.h"
 #include "InputPin.h"
-
-static const String numberAdded = "Number added";
-static const String badThings1  = "Huston we have a problem";
+#include "SmsHandler.h"
 
 #define SIM800_RX 9
 #define SIM800_TX 8
@@ -13,10 +11,11 @@ SoftwareSerial gsm(SIM800_TX, SIM800_RX);
 
 PhoneBook phoneBook;
 InputPin pin4;
+SmsHandler handler;
 
 
-  String sendATCommand(String cmd, bool waiting)
-  {
+String sendATCommand(String cmd, bool waiting)
+{
     String _resp = "";
     Serial.println(cmd);
     gsm.println(cmd);
@@ -29,10 +28,10 @@ InputPin pin4;
       Serial.println(_resp);
     }
     return _resp;
-  };
+};
 
-  String waitResponse()
-  {
+String waitResponse()
+{
     String _resp = ""; 
     long _timeout = millis() + 10000; 
     while (!gsm.available() && millis() < _timeout)  {}; 
@@ -43,16 +42,15 @@ InputPin pin4;
       Serial.println("Timeout..."); 
 
     return _resp; 
-  };
+};
 
   
-  void sendSMS(String phone, String message)
-  {
+void sendSMS(String phone, String message){
     Serial.println(sendATCommand("AT+CMGS=\"" + phone + "\"", true));            
     Serial.println(sendATCommand(message + "\r\n" + (String)((char)26), true)); 
-  };
+};
 
-  void parseSMS(String msg) {
+void parseSMS(String msg) {
   String msgheader  = "";
   String msgbody    = "";
   String msgphone    = "";
@@ -71,8 +69,9 @@ InputPin pin4;
   Serial.println("Phone: "+msgphone);
   Serial.println("Message: "+msgbody);
 
+  String com = handler.resolveCommand(msgbody);
   phoneBook.addNumber(msgphone);
-  sendSMS(msgphone, numberAdded);
+  sendSMS(msgphone, "numberAdded");
 }
 
 String _response = ""; 
