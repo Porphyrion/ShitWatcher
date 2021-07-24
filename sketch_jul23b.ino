@@ -69,7 +69,7 @@ void setup() {
 
 void sendAllSms(String text)
 {
-   for(int i = 0; i < PhoneBook::bookSize; ++i)
+   for(int i = 0; i < phoneBook.size(); ++i)
       sendSMS(phoneBook[i], text);
 }
 
