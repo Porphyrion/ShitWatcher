@@ -2,17 +2,17 @@
 
 #include "PhoneBook.h"
 #include "InputPin.h"
-#include "SmsHandler.h"
 
 #define SIM800_RX 9
 #define SIM800_TX 8
 
 SoftwareSerial gsm(SIM800_TX, SIM800_RX);
 
+unsigned long timerEvent = 2160000;
+
 PhoneBook phoneBook;
 InputPin pin4;
-SmsHandler handler;
-
+InputPin pin6;
 
 String sendATCommand(String cmd, bool waiting)
 {
@@ -38,8 +38,6 @@ String waitResponse()
     
     if (gsm.available()) 
       _resp = gsm.readString();
-    else
-      Serial.println("Timeout..."); 
 
     return _resp; 
 };
@@ -50,40 +48,18 @@ void sendSMS(String phone, String message){
     Serial.println(sendATCommand(message + "\r\n" + (String)((char)26), true)); 
 };
 
-void parseSMS(String msg) {
-  String msgheader  = "";
-  String msgbody    = "";
-  String msgphone    = "";
 
-  msg = msg.substring(msg.indexOf("+CMGR: "));
-  msgheader = msg.substring(0, msg.indexOf("\r"));
-
-  msgbody = msg.substring(msgheader.length() + 2);
-  msgbody = msgbody.substring(0, msgbody.lastIndexOf("OK"));
-  msgbody.trim();
-
-  int firstIndex = msgheader.indexOf("\",\"") + 3;
-  int secondIndex = msgheader.indexOf("\",\"", firstIndex);
-  msgphone = msgheader.substring(firstIndex, secondIndex);
-
-  Serial.println("Phone: "+msgphone);
-  Serial.println("Message: "+msgbody);
-
-  String com = handler.resolveCommand(msgbody);
-  phoneBook.addNumber(msgphone);
-  sendSMS(msgphone, "numberAdded");
-}
-
-String _response = ""; 
 
 void setup() {
   pin4.setPin(4);
+  pin4.setPin(6);
   
   gsm.begin(4800);
   Serial.begin(4800);
-  Serial.println("Start!");
-
+  
   phoneBook.addNumber("+79265527150");
+  phoneBook.addNumber("+79999878814");
+  phoneBook.addNumber("+79636556042");
   
   delay(10000);
   sendATCommand("AT\r\n", true);     
@@ -91,25 +67,32 @@ void setup() {
 }
 
 
+void sendAllSms(String text)
+{
+   for(int i = 0; i < PhoneBook::bookSize; ++i)
+      sendSMS(phoneBook[i], text);
+}
+
 void loop() {
 
   if(pin4.check())
+    sendAllSms("KnsOne has a problem");
+
+  if(pin6.check())
+    sendAllSms("KnsTwo has a problem");
+
+
+  if(millis() < timerEvent)
   {
-    for(int i = 0; i < PhoneBook::bookSize; ++i)
-      sendSMS(phoneBook[i], "Huston we have a problem - Lovkis Pidor");
-  }
-    
-  
-  if (gsm.available())   {
-    _response = waitResponse(); 
-    _response.trim();                           
-    if (_response.startsWith("+CMTI:")) {      
-      int index = _response.lastIndexOf(",");   
-      String result = _response.substring(index + 1, _response.length()); 
-      result.trim();                            
-      _response = sendATCommand("AT+CMGR="+result, true); 
-      parseSMS(_response);                    
-      // sendATCommand("AT+CMGDA=\"DEL ALL\"", true);
-    }
+    if(!pin4.check() & !pin6.check())
+      sendAllSms("All kns are working");
+     else if(pin4.check())
+      sendAllSms("KnsOne aren`t working");
+     else if(pin6.check())
+      sendAllSms("KnsTwo aren`t working");
+     else if(pin4.check() & pin6.check())
+      sendAllSms("All kns are going bad. Why you haven`t done something?");
+
+     timerEvent = millis() + timerEvent;
   }
 };
