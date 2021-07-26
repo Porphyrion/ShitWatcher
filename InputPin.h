@@ -1,6 +1,7 @@
 struct InputPin
 {
-    bool state = false;
+    bool workingStatus = true;
+    bool smsStatus = false;
     int pin;
 
     void setPin(int p) 
@@ -8,18 +9,19 @@ struct InputPin
       pin = p;
       pinMode(4,INPUT);
     }
-
-    bool isCheked() { return state;}
     
-    bool check()
+    void checkStatus()
     {
       int d = digitalRead(pin);
-
-      if(d & !state)
-        state = true;
-      else if(state & !d)
-        state = false;
-
-      return state;
+      
+      if(d & workingStatus)
+      {
+        workingStatus = false;
+      }
+      else if(!workingStatus & !d)
+      {
+        workingStatus = true;
+        smsStatus = false;
+      }
     }
 };

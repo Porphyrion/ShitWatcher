@@ -6,27 +6,38 @@
 #define SIM800_RX 9
 #define SIM800_TX 8
 
+enum Status
+{
+  Good,
+  StartBad,
+  Bad
+};
+
+Status status = Status::Good;
 SoftwareSerial gsm(SIM800_TX, SIM800_RX);
 
-unsigned long timerEvent = 2160000;
+unsigned long GoodTimerEvent  = 86400000;
+unsigned long BadTimerEvent   = 0;
+
+const unsigned long DayDelta       = 86400000;
+const unsigned long SixHourstDelta = 21600000;
 
 PhoneBook phoneBook;
 InputPin pin4;
-InputPin pin6;
 
 String sendATCommand(String cmd, bool waiting)
 {
     String _resp = "";
-    Serial.println(cmd);
     gsm.println(cmd);
+    
     if (waiting) {
       _resp = waitResponse();
       // Если Echo Mode выключен (ATE0), то эти 3 строки можно закомментировать
       if (_resp.startsWith(cmd)) {
         _resp = _resp.substring(_resp.indexOf("\r", cmd.length()) + 2);
       }
-      Serial.println(_resp);
     }
+    
     return _resp;
 };
 
@@ -44,22 +55,22 @@ String waitResponse()
 
   
 void sendSMS(String phone, String message){
-    Serial.println(sendATCommand("AT+CMGS=\"" + phone + "\"", true));            
-    Serial.println(sendATCommand(message + "\r\n" + (String)((char)26), true)); 
+    sendATCommand("AT+CMGS=\"" + phone + "\"", true);            
+    sendATCommand(message + "\r\n" + (String)((char)26), true); 
 };
+
+
 
 
 
 void setup() {
   pin4.setPin(4);
-  pin4.setPin(6);
   
   gsm.begin(4800);
   Serial.begin(4800);
   
-  phoneBook.addNumber("+79265527150");
-  phoneBook.addNumber("+79999878814");
   phoneBook.addNumber("+79636556042");
+  phoneBook.addNumber("+79265527150");
   
   delay(10000);
   sendATCommand("AT\r\n", true);     
@@ -69,30 +80,71 @@ void setup() {
 
 void sendAllSms(String text)
 {
-   for(int i = 0; i < phoneBook.size(); ++i)
-      sendSMS(phoneBook[i], text);
+   for(int i = 0; i < phoneBook.size()+1; ++i)
+   {
+    sendSMS(phoneBook[i], text);
+    delay(2000);
+   }
 }
 
-void loop() {
 
-  if(pin4.check())
-    sendAllSms("KnsOne has a problem");
-
-  if(pin6.check())
-    sendAllSms("KnsTwo has a problem");
-
-
-  if(millis() < timerEvent)
+void timerEventGood()
+{
+  if(millis() > GoodTimerEvent)
   {
-    if(!pin4.check() & !pin6.check())
-      sendAllSms("All kns are working");
-     else if(pin4.check())
-      sendAllSms("KnsOne aren`t working");
-     else if(pin6.check())
-      sendAllSms("KnsTwo aren`t working");
-     else if(pin4.check() & pin6.check())
-      sendAllSms("All kns are going bad. Why you haven`t done something?");
+     sendAllSms("Status good");  
+     GoodTimerEvent = millis() + DayDelta;
+  }
+}
 
-     timerEvent = millis() + timerEvent;
+
+void startTimerEventBad()
+{
+  status = Status::Bad;
+  BadTimerEvent = millis() + SixHourstDelta;
+}
+
+
+void timerEventBad()
+{
+  if(millis() > BadTimerEvent)
+  {
+     if(pin4.workingStatus)
+     {
+        status = Status::Good;
+        BadTimerEvent = 0;
+        GoodTimerEvent = millis() + DayDelta;
+        sendAllSms("Problem with kns one has been resolved");
+        return;
+     }
+         
+     sendAllSms("Status bad");  
+     BadTimerEvent = millis() + SixHourstDelta;
+  }
+}
+
+
+void loop() {  
+  pin4.checkStatus();
+  if(!pin4.workingStatus & !pin4.smsStatus)
+  {
+    sendAllSms("Kns One has a problem!");
+    pin4.smsStatus = true;  
+    status = Status::StartBad;
+  }
+
+  switch(status)
+  {
+    case Status::Good:
+      timerEventGood();
+      break;
+    case Status::Bad:
+      timerEventBad();
+      break;
+     case Status::StartBad:
+      startTimerEventBad();
+      break;
+     default:
+      break;
   }
 };
