@@ -107,17 +107,16 @@ void startTimerEventBad()
 
 void timerEventBad()
 {
-  if(millis() > BadTimerEvent)
+  if(pin4.workingStatus)
   {
-     if(pin4.workingStatus)
-     {
         status = Status::Good;
         BadTimerEvent = 0;
         GoodTimerEvent = millis() + DayDelta;
         sendAllSms("Problem with kns one has been resolved");
         return;
-     }
-         
+   }
+  if(millis() > BadTimerEvent)
+  {    
      sendAllSms("Status bad");  
      BadTimerEvent = millis() + SixHourstDelta;
   }
