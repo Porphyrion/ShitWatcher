@@ -1,13 +1,8 @@
 struct InputPin
 {
-    bool workingStatus = true;
-    bool smsStatus = false;
-    int pin;
-
-    void setPin(int p) 
+    void init() 
     {
-      pin = p;
-      pinMode(4,INPUT);
+      pinMode(pin,INPUT);
     }
     
     void checkStatus()
@@ -24,4 +19,8 @@ struct InputPin
         smsStatus = false;
       }
     }
+    
+    bool workingStatus = true;
+    bool smsStatus = false;
+    int pin;
 };

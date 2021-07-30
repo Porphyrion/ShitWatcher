@@ -1,42 +1,42 @@
 #include <SoftwareSerial.h>
 
-struct SimManager 
-{    
+#define SIM800_RX 9
+#define SIM800_TX 8
 
-    String sendATCommand(String cmd, bool waiting)
-    {
-        String _resp = "";
-        Serial.println(cmd);
-        gsm.println(cmd);
-        if (waiting) {
-          _response = waitResponse();
-          Serial.println(_resp);
-        }
-        return _resp;
-    };
+SoftwareSerial gsm(SIM800_TX, SIM800_RX);
 
-    String _waitResponse()
-    {
-        String _resp = ""; 
-        long _timeout = millis() + 10000; 
-        while (!gsm.available() && millis() < _timeout)  {}; 
+
+String waitResponse(){
+    String _resp = ""; 
+    long _timeout = millis() + 10000; 
+    while (!gsm.available() && millis() < _timeout)  {}; 
     
-        if (gsm.available()) 
-            _resp = gsm.readString();
-        else
-            Serial.println("Timeout..."); 
+    if (gsm.available()) 
+      _resp = gsm.readString();
 
-        return _resp; 
+    return _resp; 
+}
+
+
+String sendATCommand(String cmd, bool waiting){
+    String _resp = "";
+    gsm.println(cmd);
+    
+    if (waiting) {
+      _resp = waitResponse();
+      if (_resp.startsWith(cmd)) {
+        _resp = _resp.substring(_resp.indexOf("\r", cmd.length()) + 2);
+      }
     }
-
-  
-
-void sendSMS(String phone, String message)
-{
-    Serial.println(_sendATCommand("AT+CMGS=\"" + phone + "\"", true));            
-    Serial.println(_sendATCommand(message + "\r\n" + (String)((char)26), true)); 
+    
+    return _resp;
 };
 
+
+void sendSMS(String phone, String message){
+    sendATCommand("AT+CMGS=\"" + phone + "\"", true);            
+    sendATCommand(message + "\r\n" + (String)((char)26), true); 
+};
 
 void parseSMS(String msg) 
 {
@@ -63,11 +63,20 @@ void parseSMS(String msg)
     // И если номер некорректный, то просто удалить сообщение.
 }
 
-    bool init()
-    {
-        sendATCommand("AT\r\n", true);     
-        sendATCommand("AT+CMGF=1;&W\r\n", true);    
-    }
+bool simInit()
+{
+    bool result = true;
+    String res = "";
 
-    String _response = ""; 
-};
+    res = sendATCommand("AT\r\n", true);  
+    if(res != "OK")
+        result = false;
+    
+    res = "";
+
+    res = sendATCommand("AT+CMGF=1;&W\r\n", true);  
+    if(res != "OK")
+        result = false;
+
+    return result;
+}

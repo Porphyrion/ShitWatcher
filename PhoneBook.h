@@ -2,8 +2,7 @@ struct PhoneBook{
   static const int bookSize = 10;  
   int counter = 0;
   String numbers[bookSize];
- 
-public:
+  
   bool addNumber(String number){
       if(counter < bookSize)
       {
