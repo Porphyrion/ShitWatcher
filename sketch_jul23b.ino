@@ -1,20 +1,16 @@
-#include <SoftwareSerial.h>
-
-#include "PhoneBook.h"
-#include "InputPin.h"
-
-#define SIM800_RX 9
-#define SIM800_TX 8
+#include "Pager.h"
+#include "InputPinArray.h"
 
 enum Status
 {
+  Init, 
+  Starting,
   Good,
   StartBad,
   Bad
 };
 
-Status status = Status::Good;
-SoftwareSerial gsm(SIM800_TX, SIM800_RX);
+Status status = Status::Init;
 
 unsigned long GoodTimerEvent  = 86400000;
 unsigned long BadTimerEvent   = 0;
@@ -22,118 +18,109 @@ unsigned long BadTimerEvent   = 0;
 const unsigned long DayDelta       = 86400000;
 const unsigned long SixHourstDelta = 21600000;
 
-PhoneBook phoneBook;
-InputPin pin4;
-
-String sendATCommand(String cmd, bool waiting)
-{
-    String _resp = "";
-    gsm.println(cmd);
-    
-    if (waiting) {
-      _resp = waitResponse();
-      // Если Echo Mode выключен (ATE0), то эти 3 строки можно закомментировать
-      if (_resp.startsWith(cmd)) {
-        _resp = _resp.substring(_resp.indexOf("\r", cmd.length()) + 2);
-      }
-    }
-    
-    return _resp;
-};
-
-String waitResponse()
-{
-    String _resp = ""; 
-    long _timeout = millis() + 10000; 
-    while (!gsm.available() && millis() < _timeout)  {}; 
-    
-    if (gsm.available()) 
-      _resp = gsm.readString();
-
-    return _resp; 
-};
-
-  
-void sendSMS(String phone, String message){
-    sendATCommand("AT+CMGS=\"" + phone + "\"", true);            
-    sendATCommand(message + "\r\n" + (String)((char)26), true); 
-};
+static const char* initProblem         = "Module has a problem with init";
+static const char* initProblemResolved = "Module has a problem with init";
+static const char* goingWell           = "All systems are working";
 
 
+String knsProblem = " has a problem!";
+String knsProblemResolved = "Problem has resolved for "; 
 
-
+InputPinArray pins;
+Pager pager;
 
 void setup() {
-  pin4.setPin(4);
+  pins.addPin(4, "KnsOne");
+  pins.addPin(7, "KnsTwo");
+  pins.initPins();
   
   gsm.begin(4800);
   Serial.begin(4800);
   
-  phoneBook.addNumber("+79636556042");
-  phoneBook.addNumber("+79265527150");
+  pager.phoneBook.addNumber("+79636556042");
+  pager.phoneBook.addNumber("+79265527150");
+  pins.pager = &pager;
   
   delay(10000);
-  sendATCommand("AT\r\n", true);     
-  sendATCommand("AT+CMGF=1;&W\r\n", true);      
+
+  if(!simInit())
+    pager.sendAllSms(initProblem);
+  else
+    status = Status::Starting;
 }
 
 
-void sendAllSms(String text)
+void timerEventInit()
 {
-   for(int i = 0; i < phoneBook.size()+1; ++i)
-   {
-    sendSMS(phoneBook[i], text);
-    delay(2000);
-   }
+  if(simInit()){
+    pager.sendAllSms(initProblemResolved);
+    status = Status::Starting;
+  }
+}
+
+
+void timerEventStarting()
+{
+  if(pins.checkPins())
+    pager.sendAllSms(goingWell);
+  else
+  {
+    //
+    // Send sms with pin id who doesn`t work
+    // 
+  }
 }
 
 
 void timerEventGood()
 {
+  if(!pins.checkPins())
+  {
+    status = Status::Bad;
+    //
+    // Send sms with pin id who doesn`t work
+    // 
+    return;
+  }
+  
   if(millis() > GoodTimerEvent)
   {
-     sendAllSms("Status good");  
+     pager.sendAllSms("Status good");  
      GoodTimerEvent = millis() + DayDelta;
   }
 }
 
 
-void startTimerEventBad()
+void timerEventStartBad()
 {
   status = Status::Bad;
   BadTimerEvent = millis() + SixHourstDelta;
+  GoodTimerEvent = 0;
 }
 
 
 void timerEventBad()
 {
-  if(pin4.workingStatus)
+  if(pins.checkPins())
   {
-        status = Status::Good;
-        BadTimerEvent = 0;
-        GoodTimerEvent = millis() + DayDelta;
-        sendAllSms("Problem with kns one has been resolved");
-        return;
-   }
+    status = Status::Good;
+  }
   if(millis() > BadTimerEvent)
   {    
-     sendAllSms("Status bad");  
+     pager.sendAllSms("Status bad");  
      BadTimerEvent = millis() + SixHourstDelta;
   }
 }
 
 
 void loop() {  
-  pin4.checkStatus();
-  if(!pin4.workingStatus & !pin4.smsStatus)
-  {
-    sendAllSms("Kns One has a problem!");
-    pin4.smsStatus = true;  
-    status = Status::StartBad;
-  }
-
   switch(status)
   {
+    case Status::Init:
+      timerEventInit();
+      break;
+    case Status::Starting:
+      break;
     case Status::Good:
       timerEventGood();
       break;
@@ -141,7 +128,7 @@ void loop() {
       timerEventBad();
       break;
      case Status::StartBad:
-      startTimerEventBad();
+      timerEventStartBad();
       break;
      default:
       break;

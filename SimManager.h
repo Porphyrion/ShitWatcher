@@ -5,7 +5,6 @@
 
 SoftwareSerial gsm(SIM800_TX, SIM800_RX);
 
-
 String waitResponse(){
     String _resp = ""; 
     long _timeout = millis() + 10000; 

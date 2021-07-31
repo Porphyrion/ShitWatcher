@@ -1,3 +1,6 @@
+#ifndef PHONE_BOOK
+#define PHONE_BOOK
+
 struct PhoneBook{
   static const int bookSize = 10;  
   int counter = 0;
@@ -17,3 +20,5 @@ struct PhoneBook{
 
   int size() const { return counter; }
 };
+
+#endif
