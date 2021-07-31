@@ -6,7 +6,6 @@ enum Status
   Init, 
   Starting,
   Good,
-  StartBad,
   Bad
 };
 
@@ -22,9 +21,6 @@ static const char* initProblem         = "Module has a problem with init";
 static const char* initProblemResolved = "Module has a problem with init";
 static const char* goingWell           = "All systems are working";
 
-
-String knsProblem = " has a problem!";
-String knsProblemResolved = "Problem has resolved for "; 
 
 InputPinArray pins;
 Pager pager;
@@ -65,9 +61,10 @@ void timerEventStarting()
     pager.sendAllSms(goingWell);
   else
   {
-    //
-    // Send sms with pin id who doesn`t work
-    // 
+    status = Status::Bad;
+    BadTimerEvent = millis() + SixHourstDelta;
+    GoodTimerEvent = 0;
+    return;
   }
 }
 
@@ -77,34 +74,27 @@ void timerEventGood()
   if(!pins.checkPins())
   {
     status = Status::Bad;
-    //
-    // Send sms with pin id who doesn`t work
-    // 
+    BadTimerEvent = millis() + SixHourstDelta;
+    GoodTimerEvent = 0;
     return;
   }
   
   if(millis() > GoodTimerEvent)
   {
-     pager.sendAllSms("Status good");  
+     pager.sendAllSms(goingWell);  
      GoodTimerEvent = millis() + DayDelta;
   }
 }
-
-
-void timerEventStartBad()
-{
-  status = Status::Bad;
-  BadTimerEvent = millis() + SixHourstDelta;
-  GoodTimerEvent = 0;
-}
-
 
 void timerEventBad()
 {
   if(pins.checkPins())
   {
     status = Status::Good;
+    GoodTimerEvent = millis() + DayDelta;
+    return;
   }
+
   if(millis() > BadTimerEvent)
   {    
      pager.sendAllSms("Status bad");  
@@ -120,15 +110,13 @@ void loop() {
       timerEventInit();
       break;
     case Status::Starting:
+      timerEventStarting();
       break;
     case Status::Good:
       timerEventGood();
       break;
     case Status::Bad:
       timerEventBad();
-      break;
-     case Status::StartBad:
-      timerEventStartBad();
       break;
      default:
       break;

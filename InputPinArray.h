@@ -5,6 +5,9 @@
 #include "Pager.h"
 struct InputPinArray
 {    
+    String knsProblem         = " has a problem!";
+    String knsProblemResolved = "Problem has resolved for "; 
+
     void addPin(int p, String&& id){
         if(counter < SIZE){
             InputPin pin;
@@ -30,10 +33,18 @@ struct InputPinArray
             if(!array[i].workingStatus){
                 result = false;
                 if(array[i].statusChanged)
-                {}
+                {
+                    String message = array[i].id + knsProblem;
+                    array[i].statusChanged = false;
+                    pager->sendAllSms(message);   
+                }
             }
             else if(array[i].statusChanged)
-            {}
+            {
+                array[i].statusChanged = false;
+                String message = array[i].id + knsProblemResolved;
+                pager->sendAllSms(message);   
+            }
             
         }
         return result;
