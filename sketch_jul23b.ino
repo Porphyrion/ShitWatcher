@@ -20,6 +20,7 @@ const unsigned long SixHourstDelta = 21600000;
 static const char* initProblem         = "Module has a problem with init";
 static const char* initProblemResolved = "Module has a problem with init";
 static const char* goingWell           = "All systems are working";
+static const char* goingWellStart      = "Start! All systems are working!";
 
 
 InputPinArray pins;
@@ -56,7 +57,10 @@ void timerEventInit()
 void timerEventStarting()
 {
   if(pins.checkPins())
-    pager.sendAllSms(goingWell);
+  {
+    status = Status::Good;
+    pager.sendAllSms(goingWellStart);
+  }
   else
   {
     status = Status::Bad;
