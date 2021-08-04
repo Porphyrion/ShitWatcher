@@ -39,10 +39,8 @@ void setup() {
   
   delay(10000);
 
-  if(!simInit())
-    pager.sendAllSms(initProblem);
-  else
-    status = Status::Starting;
+  pager.sendAllSms(initProblem);
+  status = Status::Starting;
 }
 
 
