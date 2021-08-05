@@ -18,7 +18,8 @@ const unsigned long DayDelta       = 86400000;
 const unsigned long SixHourstDelta = 21600000;
 
 static const char* goingWell           = "All systems are working";
-static const char* goingWellStart      = "Start! All systems are working!";
+static const char* start               = "Start!";
+static const char* goingBad            = "Some systems doesn`t workig";
 static const char* allProblemsResolved = "All systems have returned to work!";
 
 InputPinArray pins;
@@ -49,10 +50,11 @@ void timerEventInit()
 
 void timerEventStarting()
 {
+  pager.sendAllSms(start);
   if(pins.checkPins())
   {
     status = Status::Good;
-    pager.sendAllSms(goingWellStart );
+    pager.sendAllSms(goingWell);
   }
   else
   {
