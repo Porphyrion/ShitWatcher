@@ -42,7 +42,7 @@ struct InputPinArray
             else if(array[i].statusChanged)
             {
                 array[i].statusChanged = false;
-                String message = array[i].id + knsProblemResolved;
+                String message = knsProblemResolved + array[i].id;
                 pager->sendAllSms(message);   
             }
             

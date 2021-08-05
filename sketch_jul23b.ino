@@ -10,18 +10,16 @@ enum Status
 };
 
 Status status = Status::Init;
-
+ 
 unsigned long GoodTimerEvent  = 86400000;
 unsigned long BadTimerEvent   = 0;
 
 const unsigned long DayDelta       = 86400000;
 const unsigned long SixHourstDelta = 21600000;
 
-static const char* initProblem         = "Module has a problem with init";
-static const char* initProblemResolved = "Module has a problem with init";
 static const char* goingWell           = "All systems are working";
 static const char* goingWellStart      = "Start! All systems are working!";
-
+static const char* allProblemsResolved = "All systems have returned to work!";
 
 InputPinArray pins;
 Pager pager;
@@ -31,8 +29,7 @@ void setup() {
   pins.addPin(7, "KnsTwo");
   pins.initPins();
   
-  gsm.begin(4800);
-  Serial.begin(4800);
+  gsm.begin(9600);
   
   pager.phoneBook.addNumber("+79636556042");
   pager.phoneBook.addNumber("+79265527150");
@@ -40,17 +37,13 @@ void setup() {
   
   delay(10000);
 
-  pager.sendAllSms(initProblem);
+  simInit();
   status = Status::Starting;
 }
 
 
 void timerEventInit()
 {
-  if(simInit()){
-    pager.sendAllSms(initProblemResolved);
-    status = Status::Starting;
-  }
 }
 
 
@@ -59,7 +52,7 @@ void timerEventStarting()
   if(pins.checkPins())
   {
     status = Status::Good;
-    pager.sendAllSms(goingWellStart);
+    pager.sendAllSms(goingWellStart );
   }
   else
   {
@@ -94,6 +87,7 @@ void timerEventBad()
   {
     status = Status::Good;
     GoodTimerEvent = millis() + DayDelta;
+    pager.sendAllSms(allProblemsResolved);
     return;
   }
 
@@ -108,9 +102,6 @@ void timerEventBad()
 void loop() {  
   switch(status)
   {
-    case Status::Init:
-      timerEventInit();
-      break;
     case Status::Starting:
       timerEventStarting();
       break;
