@@ -35,16 +35,16 @@ void setup() {
   pager.phoneBook.addNumber("+79636556042");
   pager.phoneBook.addNumber("+79265527150");
   pins.pager = &pager;
-  
-  delay(10000);
-
-  simInit();
-  status = Status::Starting;
 }
 
 
 void timerEventInit()
 {
+  if(simInit())
+  {
+    status = Status::Starting;
+    pager.sendAllSms(F("Module was started"));
+  }
 }
 
 
@@ -104,6 +104,9 @@ void timerEventBad()
 void loop() {  
   switch(status)
   {
+    case Status::Init:
+      timerEventInit();
+      break;
     case Status::Starting:
       timerEventStarting();
       break;

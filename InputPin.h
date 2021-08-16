@@ -1,3 +1,6 @@
+#ifndef INPUT_PIN
+#define INPUT_PIN
+
 struct InputPin
 {
     void init() 
@@ -27,3 +30,5 @@ struct InputPin
     String id;
     int pin;
 };
+
+#endif

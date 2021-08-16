@@ -23,9 +23,6 @@ String sendATCommand(String cmd, bool waiting){
     
     if (waiting) {
       _resp = waitResponse();
-      if (_resp.startsWith(cmd)) {
-        _resp = _resp.substring(_resp.indexOf("\r", cmd.length()) + 2);
-      }
     }
     
     return _resp;
@@ -33,49 +30,42 @@ String sendATCommand(String cmd, bool waiting){
 
 
 void sendSMS(String phone, String message){
-    sendATCommand("AT+CMGS=\"" + phone + "\"", true);            
+    sendATCommand("AT+CMGS=\"" + phone + "\"", true);    
+    delay(500);        
     sendATCommand(message + "\r\n" + (String)((char)26), true); 
 };
 
-void parseSMS(String msg) 
-{
-    String msgheader  = "";
-    String msgbody    = "";
-    String msgphone   = "";
-
-    msg = msg.substring(msg.indexOf("+CMGR: "));
-    msgheader = msg.substring(0, msg.indexOf("\r"));
-
-    msgbody = msg.substring(msgheader.length() + 2);
-    msgbody = msgbody.substring(0, msgbody.lastIndexOf("OK"));
-    msgbody.trim();
-
-    int firstIndex = msgheader.indexOf("\",\"") + 3;
-    int secondIndex = msgheader.indexOf("\",\"", firstIndex);
-    msgphone = msgheader.substring(firstIndex, secondIndex);
-
-    Serial.println("Phone: "+msgphone);
-    Serial.println("Message: "+msgbody);
-
-    // Далее пишем логику обработки SMS-команд.
-    // Здесь также можно реализовывать проверку по номеру телефона
-    // И если номер некорректный, то просто удалить сообщение.
-}
 
 bool simInit()
 {
     bool result = true;
+    
     String res = "";
+    res=sendATCommand("ATE0\r\n", true);
+    res.trim();
+    if(res != "OK")
+        result = false;
 
+    res = "";
     res = sendATCommand("AT\r\n", true);  
+    res.trim();
     if(res != "OK")
         result = false;
     
-    res = "";
 
-    res = sendATCommand("AT+CMGF=1;&W\r\n", true);  
+    res = "";
+    res = sendATCommand("AT+CMGF=1;&W\r\n", true);
+    res.trim();
     if(res != "OK")
         result = false;
 
     return result;
+    res = "";
+    res=sendATCommand("AT+CREG?\r\n", true);
+    String res2 = res.substring(9,12);
+    if(res2 != "0,1")
+      result = false;
+    
+
+   return result;
 }
