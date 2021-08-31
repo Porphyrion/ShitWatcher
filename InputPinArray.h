@@ -5,8 +5,8 @@
 #include "Pager.h"
 struct InputPinArray
 {    
-    String knsProblem         = " has a problem!";
-    String knsProblemResolved = "Problem has resolved for "; 
+    String knsProblem         = "Проблемы с ";
+    String knsProblemResolved = "Проблемы решены для "; 
 
     void addPin(int p, String&& id){
         if(counter < SIZE){

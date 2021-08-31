@@ -17,19 +17,20 @@ unsigned long BadTimerEvent   = 0;
 const unsigned long DayDelta       = 86400000;
 const unsigned long SixHourstDelta = 21600000;
 
-static const char* goingWell           = "All systems are working";
-static const char* start               = "Start!";
-static const char* goingBad            = "Some systems doesn`t workig";
-static const char* allProblemsResolved = "All systems have returned to work!";
+static const char* goingWell           = "Все системы работают штатно";
+static const char* start               = "Старт! 31 августа!";
+static const char* goingBad            = "Статус бэд!";
+static const char* allProblemsResolved = "Все системы работают штатно. Снова.";
 
 InputPinArray pins;
 Pager pager;
 
 void setup() {
-  pins.addPin(4, "KnsOne");
-  pins.addPin(7, "KnsTwo");
+  pins.addPin(4, "КНС ОСНОВА");
+  pins.addPin(7, "КНС ДУШ");
   pins.initPins();
-  
+
+  Serial.begin(9600);
   gsm.begin(9600);
   
   pager.phoneBook.addNumber("+79636556042");
@@ -43,13 +44,15 @@ void timerEventInit()
   if(simInit())
   {
     status = Status::Starting;
-    pager.sendAllSms(F("Module was started"));
+    pager.sendAllSms(F("Модуль запущен!"));
+    
   }
 }
 
 
 void timerEventStarting()
 {
+  
   pager.sendAllSms(start);
   if(pins.checkPins())
   {
