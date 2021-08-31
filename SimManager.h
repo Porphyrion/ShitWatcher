@@ -100,20 +100,22 @@ void getPDUPack(String *phone, String *message, String *result, int *PDUlen)
   *result += "00";                                // Поле PID (Protocol Identifier)
   *result += "08";                                // Поле DCS (Data Coding Scheme)
   //*result += "";                                // Поле VP (Validity Period) - не используется
-
+  //Serial.println("Середина из функции:" + *result);
   String msg = StringToUCS2(*message);            // Конвертируем строку в UCS2-формат
-
+  //Serial.println("Декодированное сообщение" + msg);
+  
   *result += byteToHexString(msg.length() / 2);   // Поле UDL (User Data Length). Делим на 2, так как в UCS2-строке каждый закодированный символ представлен 2 байтами.
   *result += msg;
 
   *PDUlen = (*result).length() / 2;               // Получаем длину PDU-пакета без поля SCA
   *result = "00" + *result;                       // Добавляем поле SCA
+  //Serial.println("Выходим из функции:"); Serial.println( *result);
 }
 
 
 void sendSMSinPDU(String phone, String message)
 {
-  Serial.println("Отправляем сообщение: " + message);
+  //Serial.println("Отправляем сообщение: " + message);
 
   // ============ Подготовка PDU-пакета =============================================================================================
   // В целях экономии памяти будем использовать указатели и ссылки
@@ -128,11 +130,13 @@ void sendSMSinPDU(String phone, String message)
 
   getPDUPack(ptrphone, ptrmessage, ptrPDUPack, ptrPDUlen);      // Функция формирующая PDU-пакет, и вычисляющая длину пакета без SCA
 
-  Serial.println("PDU-pack: " + PDUPack);
-  Serial.println("PDU length without SCA:" + (String)PDUlen);
+  //Serial.println("PDU-pack: " + PDUPack);
+  //Serial.println("PDU length without SCA:" + (String)PDUlen);
 
   // ============ Отправка PDU-сообщения ============================================================================================
   sendATCommand("AT+CMGF=0", true);                             // Включаем PDU-режим
+  delay(200);
   sendATCommand("AT+CMGS=" + (String)PDUlen, true);             // Отправляем длину PDU-пакета
+  delay(200);
   sendATCommand(PDUPack + (String)((char)26), true);            // После PDU-пакета отправляем Ctrl+Z
 }

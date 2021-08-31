@@ -10,7 +10,7 @@ struct PhoneBook{
       if(counter < bookSize)
       {
         this->numbers[counter] = number;
-        counter++;
+        ++counter;
         return true;
       }
       return false;

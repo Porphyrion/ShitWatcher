@@ -11,10 +11,10 @@ enum Status
 
 Status status = Status::Init;
  
-unsigned long GoodTimerEvent  = 86400000;
+unsigned long GoodTimerEvent  = 8640000;
 unsigned long BadTimerEvent   = 0;
 
-const unsigned long DayDelta       = 86400000;
+const unsigned long DayDelta       = 8640000;
 const unsigned long SixHourstDelta = 21600000;
 
 static const char* goingWell           = "Все системы работают штатно";
@@ -26,6 +26,7 @@ InputPinArray pins;
 Pager pager;
 
 void setup() {
+  
   pins.addPin(4, "КНС ОСНОВА");
   pins.addPin(7, "КНС ДУШ");
   pins.initPins();
@@ -36,6 +37,7 @@ void setup() {
   pager.phoneBook.addNumber("+79636556042");
   pager.phoneBook.addNumber("+79265527150");
   pins.pager = &pager;
+  Serial.begin("PIDOR");
 }
 
 
@@ -44,15 +46,13 @@ void timerEventInit()
   if(simInit())
   {
     status = Status::Starting;
-    pager.sendAllSms(F("Модуль запущен!"));
-    
+    pager.sendAllSms(F("Модуль запущен!")); 
   }
 }
 
 
 void timerEventStarting()
-{
-  
+{ 
   pager.sendAllSms(start);
   if(pins.checkPins())
   {

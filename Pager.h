@@ -10,7 +10,7 @@ struct Pager
 
     void sendAllSms(String text)
     {   
-        for(int i = 0; i < phoneBook.size()+1; ++i)
+        for(int i = 0; i < phoneBook.size(); ++i)
         {
          sendSMSinPDU(phoneBook[i], text);
          delay(2000);

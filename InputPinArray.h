@@ -3,10 +3,11 @@
 
 #include "InputPin.h"
 #include "Pager.h"
+
 struct InputPinArray
 {    
     String knsProblem         = "Проблемы с ";
-    String knsProblemResolved = "Проблемы решены для "; 
+    String knsProblemResolved = "Проблемы реены для "; 
 
     void addPin(int p, String&& id){
         if(counter < SIZE){
