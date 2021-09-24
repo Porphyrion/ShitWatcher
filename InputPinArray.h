@@ -7,7 +7,7 @@
 struct InputPinArray
 {    
     String knsProblem         = "Проблемы с ";
-    String knsProblemResolved = "Проблемы реены для "; 
+    String knsProblemResolved = "Проблемы решены с "; 
 
     void addPin(int p, String&& id){
         if(counter < SIZE){
@@ -35,7 +35,7 @@ struct InputPinArray
                 result = false;
                 if(array[i].statusChanged)
                 {
-                    String message = array[i].id + knsProblem;
+                    String message = knsProblem + array[i].id;
                     array[i].statusChanged = false;
                     pager->sendAllSms(message);   
                 }
@@ -52,7 +52,7 @@ struct InputPinArray
     }
 
     static const int SIZE = 2;
-    unsigned int counter;
+    unsigned int counter = 0;
     InputPin array[SIZE];
     Pager* pager;
 };

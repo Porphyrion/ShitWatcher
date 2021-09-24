@@ -11,14 +11,12 @@ enum Status
 
 Status status = Status::Init;
  
-unsigned long GoodTimerEvent  = 8640000;
+unsigned long GoodTimerEvent  = 180000;
 unsigned long BadTimerEvent   = 0;
 
-const unsigned long DayDelta       = 8640000;
-const unsigned long SixHourstDelta = 21600000;
+const unsigned long DayDelta       = 180000;
+const unsigned long SixHourstDelta = 90000;
 
-static const char* goingWell           = "Все системы работают штатно";
-static const char* start               = "Старт! 31 августа!";
 static const char* goingBad            = "Статус бэд!";
 static const char* allProblemsResolved = "Все системы работают штатно. Снова.";
 
@@ -37,7 +35,6 @@ void setup() {
   pager.phoneBook.addNumber("+79636556042");
   pager.phoneBook.addNumber("+79265527150");
   pins.pager = &pager;
-  Serial.begin("PIDOR");
 }
 
 
@@ -53,15 +50,16 @@ void timerEventInit()
 
 void timerEventStarting()
 { 
-  pager.sendAllSms(start);
+  pager.sendAllSms(F("Старт! Сентябрь!"));
   if(pins.checkPins())
   {
     status = Status::Good;
-    pager.sendAllSms(goingWell);
+    pager.sendAllSms(F("Все системы работают"));
   }
   else
   {
     status = Status::Bad;
+    pager.sendAllSms(goingBad);  
     BadTimerEvent = millis() + SixHourstDelta;
     GoodTimerEvent = 0;
     return;
@@ -81,7 +79,7 @@ void timerEventGood()
   
   if(millis() > GoodTimerEvent)
   {
-     pager.sendAllSms(goingWell);  
+     pager.sendAllSms(F("Все системы работают"));  
      GoodTimerEvent = millis() + DayDelta;
   }
 }
@@ -98,13 +96,14 @@ void timerEventBad()
 
   if(millis() > BadTimerEvent)
   {    
-     pager.sendAllSms("Status bad");  
+     pager.sendAllSms(goingBad);  
      BadTimerEvent = millis() + SixHourstDelta;
   }
 }
 
 
 void loop() {  
+  checkQueue();
   switch(status)
   {
     case Status::Init:

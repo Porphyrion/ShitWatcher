@@ -1,11 +1,22 @@
 #include <SoftwareSerial.h>
-
+#include <cppQueue.h>
 #include "PDUDecoder.h"
+
+
+#define  IMPLEMENTATION  FIFO
 
 #define SIM800_RX 9
 #define SIM800_TX 8
 
+struct SmsData
+{
+  String phone;
+  String msg;
+};
+
 SoftwareSerial gsm(SIM800_TX, SIM800_RX);
+
+cppQueue  messagesQueue(sizeof(SmsData), 10, IMPLEMENTATION);
 
 String waitResponse(){
     String _resp = ""; 
@@ -21,18 +32,23 @@ String waitResponse(){
 
 String sendATCommand(String cmd, bool waiting){
     String _resp = "";
+    Serial.println("Команда " + cmd);
     gsm.println(cmd);
     
     if (waiting) {
       _resp = waitResponse();
     }
     
+    int isError = _resp.indexOf("ERROR");
+    if(isError > 0)
+      _resp = F("ERROR");
+      
     return _resp;
 };
 
 
 void sendSMS(String phone, String message){
-    sendATCommand("AT+CMGS=\"" + phone + "\"", true);    
+    String resp = sendATCommand("AT+CMGS=\"" + phone + "\"", true);        
     delay(500);        
     sendATCommand(message + "\r\n" + (String)((char)26), true); 
 };
@@ -100,22 +116,20 @@ void getPDUPack(String *phone, String *message, String *result, int *PDUlen)
   *result += "00";                                // Поле PID (Protocol Identifier)
   *result += "08";                                // Поле DCS (Data Coding Scheme)
   //*result += "";                                // Поле VP (Validity Period) - не используется
-  //Serial.println("Середина из функции:" + *result);
+
   String msg = StringToUCS2(*message);            // Конвертируем строку в UCS2-формат
-  //Serial.println("Декодированное сообщение" + msg);
   
   *result += byteToHexString(msg.length() / 2);   // Поле UDL (User Data Length). Делим на 2, так как в UCS2-строке каждый закодированный символ представлен 2 байтами.
   *result += msg;
 
   *PDUlen = (*result).length() / 2;               // Получаем длину PDU-пакета без поля SCA
   *result = "00" + *result;                       // Добавляем поле SCA
-  //Serial.println("Выходим из функции:"); Serial.println( *result);
 }
 
 
 void sendSMSinPDU(String phone, String message)
 {
-  //Serial.println("Отправляем сообщение: " + message);
+  Serial.println("Отправляем сообщение: " + message + " на номер " + phone);
 
   // ============ Подготовка PDU-пакета =============================================================================================
   // В целях экономии памяти будем использовать указатели и ссылки
@@ -130,13 +144,36 @@ void sendSMSinPDU(String phone, String message)
 
   getPDUPack(ptrphone, ptrmessage, ptrPDUPack, ptrPDUlen);      // Функция формирующая PDU-пакет, и вычисляющая длину пакета без SCA
 
-  //Serial.println("PDU-pack: " + PDUPack);
+  Serial.println("PDU-pack: " + PDUPack);
   //Serial.println("PDU length without SCA:" + (String)PDUlen);
 
   // ============ Отправка PDU-сообщения ============================================================================================
   sendATCommand("AT+CMGF=0", true);                             // Включаем PDU-режим
-  delay(200);
-  sendATCommand("AT+CMGS=" + (String)PDUlen, true);             // Отправляем длину PDU-пакета
-  delay(200);
-  sendATCommand(PDUPack + (String)((char)26), true);            // После PDU-пакета отправляем Ctrl+Z
+  
+  String resp = sendATCommand("AT+CMGS=" + (String)PDUlen, true);             // Отправляем длину PDU-пакета
+  
+  resp = sendATCommand(PDUPack + (String)((char)26), true);            // После PDU-пакета отправляем Ctrl+Z
+  if(resp == "ERROR"){
+        Serial.println("Error found");
+        SmsData sms;
+        sms.phone = phone;
+        sms.msg = message;
+        messagesQueue.push(&sms);
+        return;
+    }
+}
+
+
+void checkQueue()
+{
+   if(!messagesQueue.isEmpty())
+   {
+      int size = messagesQueue.getCount();
+      Serial.println("Очко товарища" + size);
+      for(int i = 0; i < size; ++i){
+        SmsData sms;
+        messagesQueue.pop(&sms);
+        sendSMSinPDU(sms.phone, sms.msg); 
+      }
+   }
 }

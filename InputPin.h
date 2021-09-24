@@ -6,7 +6,6 @@ struct InputPin
     void init() 
     {
       pinMode(pin,INPUT);
-      statusChanged = false;
     }
     
     void checkStatus()
