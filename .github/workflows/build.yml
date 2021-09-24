@@ -27,7 +27,10 @@ jobs:
           arduino-cli core list
 
       - name: Compile Sketch
-        run: arduino-cli compile --fqbn ${{ matrix.fqbn }} .
+        run: |
+           ls
+           pwd
+           arduino-cli compile --fqbn ${{ matrix.fqbn }} .
 
       - uses: actions/upload-artifact@v1
         with:
