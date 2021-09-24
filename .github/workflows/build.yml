@@ -25,7 +25,7 @@ jobs:
           arduino-cli core update-index --additional-urls https://raw.githubusercontent.com/amperka/iskra-boards/master/package_amperka_index.json
           arduino-cli core install ${{ matrix.arduino-platform }} --additional-urls https://raw.githubusercontent.com/amperka/iskra-boards/master/package_amperka_index.json
           arduino-cli core update-index 
-          arduino-cli core install
+          arduino-cli core install arduino:avr
 
       - name: Compile Sketch
         run: arduino-cli compile --fqbn amperka-iskra:avr:iskra-nano-pro .
