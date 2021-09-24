@@ -22,8 +22,8 @@ jobs:
  
       - name: Install platform
         run: |
-          arduino-cli core update-index
-          arduino-cli core install https://github.com/stm32duino/BoardManagerFiles/raw/master/package_stmicroelectronics_index.json
+          arduino-cli core update-index --additional-urls https://raw.githubusercontent.com/amperka/iskra-boards/master/package_amperka_index.json
+          arduino-cli core install ${{ matrix.arduino-platform }}
 
       - name: Compile Sketch
         run: arduino-cli compile --fqbn ${{ matrix.fqbn }} .
