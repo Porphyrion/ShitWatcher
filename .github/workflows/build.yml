@@ -27,10 +27,7 @@ jobs:
           arduino-cli core list
 
       - name: Compile Sketch
-        run: |
-           ls
-           pwd
-           arduino-cli compile --fqbn ${{ matrix.fqbn }} .
+        run: arduino-cli compile --fqbn amperka-iskra:avr .
 
       - uses: actions/upload-artifact@v1
         with:
