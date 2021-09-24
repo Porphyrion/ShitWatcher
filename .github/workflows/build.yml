@@ -27,7 +27,7 @@ jobs:
           arduino-cli core list
 
       - name: Compile Sketch
-        run: arduino-cli compile --fqbn amperka-iskra:avr:nano_pro .
+        run: arduino-cli compile --fqbn amperka-iskra:avr:iskra-nano-pro .
 
       - uses: actions/upload-artifact@v1
         with:
