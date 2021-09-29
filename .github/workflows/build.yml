@@ -29,9 +29,12 @@ jobs:
           arduino-cli lib install queue
 
       - name: Compile Sketch
-        run: arduino-cli compile --fqbn amperka-iskra:avr:iskra-nano-pro .
+        run: arduino-cli compile --fqbn amperka-iskra:avr:iskra-nano-pro --build-path ./buid .
 
-      - uses: actions/upload-artifact@v1
+      - name: Create build dir
+        run: mkdir build
+
+      - uses: actions/upload-artifact@v2
         with:
-          name: shiw
-          path: MyFirstSketch/shit.bin 
+          name: ShitWatcher
+          path: build/shit.bin 

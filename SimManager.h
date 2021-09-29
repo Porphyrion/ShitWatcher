@@ -1,5 +1,5 @@
 #include <SoftwareSerial.h>
-#include <cppQueue.h>
+//#include <cppQueue.h>
 #include "PDUDecoder.h"
 
 
@@ -16,7 +16,7 @@ struct SmsData
 
 SoftwareSerial gsm(SIM800_TX, SIM800_RX);
 
-cppQueue  messagesQueue(sizeof(SmsData), 10, IMPLEMENTATION);
+//cppQueue  messagesQueue(sizeof(SmsData), 10, IMPLEMENTATION);
 
 String waitResponse(){
     String _resp = ""; 
@@ -158,7 +158,7 @@ void sendSMSinPDU(String phone, String message)
         SmsData sms;
         sms.phone = phone;
         sms.msg = message;
-        messagesQueue.push(&sms);
+        //messagesQueue.push(&sms);
         return;
     }
 }
@@ -166,14 +166,14 @@ void sendSMSinPDU(String phone, String message)
 
 void checkQueue()
 {
-   if(!messagesQueue.isEmpty())
-   {
-      int size = messagesQueue.getCount();
-      Serial.println("Очко товарища" + size);
-      for(int i = 0; i < size; ++i){
-        SmsData sms;
-        messagesQueue.pop(&sms);
-        sendSMSinPDU(sms.phone, sms.msg); 
-      }
-   }
+  //  if(!messagesQueue.isEmpty())
+  //  {
+  //     int size = messagesQueue.getCount();
+  //     Serial.println("Очко товарища" + size);
+  //     for(int i = 0; i < size; ++i){
+  //       SmsData sms;
+  //       messagesQueue.pop(&sms);
+  //       sendSMSinPDU(sms.phone, sms.msg); 
+  //     }
+  //  }
 }

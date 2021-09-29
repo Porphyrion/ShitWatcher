@@ -23,8 +23,7 @@ static const char* allProblemsResolved = "Все системы работают
 InputPinArray pins;
 Pager pager;
 
-void setup() {
-  
+void setup(){
   pins.addPin(4, "КНС ОСНОВА");
   pins.addPin(7, "КНС ДУШ");
   pins.initPins();
