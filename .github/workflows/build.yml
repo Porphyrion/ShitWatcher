@@ -33,7 +33,8 @@ jobs:
 
       - name: Create build dir
         run: mkdir build
-
+      
+      - name: Upload artifact
       - uses: actions/upload-artifact@v2
         with:
           name: ShitWatcher
