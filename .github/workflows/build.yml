@@ -34,7 +34,6 @@ jobs:
       - name: Create build dir
         run: mkdir build
       
-      - name: Upload artifact
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
