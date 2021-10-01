@@ -35,7 +35,9 @@ jobs:
         run: mkdir build
       
       - name: Upload artifact
-      - uses: actions/upload-artifact@v2
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
         with:
-          name: ShitWatcher
-          path: build/shit.bin 
+          type: 'zip'
+          filename: 'release.zip'
+          exclusions: '*.github'
