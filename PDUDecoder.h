@@ -20,8 +20,8 @@ unsigned int getCharSize(unsigned char b) {
   return 1;
 }
 
-
-unsigned int symbolToUInt(const String& bytes) {  // Функция для получения DEC-представления символа
+ // Функция для получения DEC-представления символа
+unsigned int symbolToUInt(const String& bytes) { 
   unsigned int charSize = bytes.length();         // Количество байт, которыми закодирован символ
   unsigned int result = 0;
   if (charSize == 1) {
@@ -52,19 +52,20 @@ unsigned int symbolToUInt(const String& bytes) {  // Функция для по�
   }
 }
 
-
-String byteToHexString(byte i) { // Функция преобразования числового значения байта в шестнадцатиричное (HEX)
+// Функция преобразования числового значения байта в шестнадцатиричное (HEX)
+String byteToHexString(byte i) { 
   String hex = String(i, HEX);
   if (hex.length() == 1) hex = "0" + hex;
   hex.toUpperCase();
   return hex;
 }
 
+
 String StringToUCS2(String s)
 {
   String output = "";
 
-  for (int k = 0; k < s.length(); k++) {                            // Начинаем перебирать все байты во входной строке
+  for (int k = 0; k < s.length(); k++) {
     byte actualChar = (byte)s[k];                                   // Получаем первый байт
     unsigned int charSize = getCharSize(actualChar);                // Получаем длину символа - кличество байт.
 
@@ -84,7 +85,6 @@ String StringToUCS2(String s)
   }
   return output;                                                    // Возвращаем результат
 }
-
 
 
 #endif

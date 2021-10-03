@@ -17,8 +17,6 @@ unsigned long BadTimerEvent   = 0;
 const unsigned long DayDelta       = 180000;
 const unsigned long SixHourstDelta = 90000;
 
-static const char* goingBad            = "Статус бэд!";
-static const char* allProblemsResolved = "Все системы работают штатно. Снова.";
 
 InputPinArray pins;
 Pager pager;
@@ -28,7 +26,7 @@ void setup(){
   pins.addPin(7, "КНС ДУШ");
   pins.initPins();
 
-  Serial.begin(9600);
+  // Serial.begin(9600);
   gsm.begin(9600);
   
   pager.phoneBook.addNumber("+79636556042");
@@ -49,7 +47,6 @@ void timerEventInit()
 
 void timerEventStarting()
 { 
-  pager.sendAllSms(F("Старт! Сентябрь!"));
   if(pins.checkPins())
   {
     status = Status::Good;
@@ -58,7 +55,7 @@ void timerEventStarting()
   else
   {
     status = Status::Bad;
-    pager.sendAllSms(goingBad);  
+    pager.sendAllSms(F("Статус бэд!"));  
     BadTimerEvent = millis() + SixHourstDelta;
     GoodTimerEvent = 0;
     return;
@@ -83,26 +80,26 @@ void timerEventGood()
   }
 }
 
+
 void timerEventBad()
 {
   if(pins.checkPins())
   {
     status = Status::Good;
     GoodTimerEvent = millis() + DayDelta;
-    pager.sendAllSms(allProblemsResolved);
+    pager.sendAllSms("Система вернлась к работе");
     return;
   }
 
   if(millis() > BadTimerEvent)
   {    
-     pager.sendAllSms(goingBad);  
+     pager.sendAllSms(F("Статус бэд!"));  
      BadTimerEvent = millis() + SixHourstDelta;
   }
 }
 
 
-void loop() {  
-  checkQueue();
+void loop() {
   switch(status)
   {
     case Status::Init:
