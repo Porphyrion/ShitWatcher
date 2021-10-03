@@ -13,7 +13,7 @@ struct Pager
         for(int i = 0; i < phoneBook.size(); ++i)
         {
          sendSMSinPDU(phoneBook[i], text);
-         delay(2000);
+         delay(3000);
         }
     }
 };

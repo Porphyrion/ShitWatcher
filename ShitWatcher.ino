@@ -11,11 +11,11 @@ enum Status
 
 Status status = Status::Init;
  
-unsigned long GoodTimerEvent  = 180000;
+unsigned long GoodTimerEvent  = 7200000;
 unsigned long BadTimerEvent   = 0;
 
-const unsigned long DayDelta       = 180000;
-const unsigned long SixHourstDelta = 90000;
+const unsigned long DayDelta       = 7200000;
+const unsigned long SixHourstDelta = 3600000;
 
 
 InputPinArray pins;
@@ -39,7 +39,9 @@ void timerEventInit()
 {
   if(simInit())
   {
+
     status = Status::Starting;
+    delay(4000);
     pager.sendAllSms(F("Модуль запущен!")); 
   }
 }
@@ -87,7 +89,7 @@ void timerEventBad()
   {
     status = Status::Good;
     GoodTimerEvent = millis() + DayDelta;
-    pager.sendAllSms("Система вернлась к работе");
+    pager.sendAllSms("Система вернулась к работе");
     return;
   }
 

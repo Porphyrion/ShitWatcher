@@ -132,8 +132,11 @@ void sendSMSinPDU(String phone, String message)
 
   // Turn on PDU-mode
   sendATCommand("AT+CMGF=0", true);
+  delay(800); 
   // Send PDU-packet len
   String resp = sendATCommand("AT+CMGS=" + (String)PDUlen, true);
+  delay(800); 
   // Send Ctrl-Z
   resp = sendATCommand(PDUPack + (String)((char)26), true);
+  delay(800); 
 }
