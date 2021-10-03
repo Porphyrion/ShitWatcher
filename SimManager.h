@@ -2,11 +2,8 @@
 #include "PDUDecoder.h"
 
 
-#define  IMPLEMENTATION  FIFO
-
 #define SIM800_RX 9
 #define SIM800_TX 8
-
 
 
 SoftwareSerial gsm(SIM800_TX, SIM800_RX);
