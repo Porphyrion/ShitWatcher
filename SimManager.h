@@ -10,37 +10,35 @@ SoftwareSerial gsm(SIM800_TX, SIM800_RX);
 
 
 String waitResponse(){
-    String _resp = ""; 
-    long _timeout = millis() + 10000; 
-    while (!gsm.available() && millis() < _timeout)  {}; 
+    String cmdResp = ""; 
+    long timeout = millis() + 10000; 
+    while (!gsm.available() && millis() < timeout)  {}; 
     
     if (gsm.available()) 
-      _resp = gsm.readString();
+      cmdResp = gsm.readString();
 
-    return _resp; 
+    return cmdResp; 
 }
 
 
 String sendATCommand(String cmd, bool waiting){
-    String _resp = "";
-    Serial.println("Команда " + cmd);
+    String cmdResp = ""; 
     gsm.println(cmd);
     
     if (waiting) {
-      _resp = waitResponse();
+      cmdResp = waitResponse();
     }
     
-    int isError = _resp.indexOf("ERROR");
+    int isError = cmdResp.indexOf("ERROR");
     if(isError > 0)
-      _resp = F("ERROR");
-    
-    Serial.println(_resp);
-    return _resp;
+      cmdResp = F("ERROR");
+
+    return cmdResp;
 };
 
 
 void sendSMS(String phone, String message){
-    String resp = sendATCommand("AT+CMGS=\"" + phone + "\"", true);        
+    sendATCommand("AT+CMGS=\"" + phone + "\"", true);        
     delay(500);        
     sendATCommand(message + "\r\n" + (String)((char)26), true); 
 };
@@ -48,29 +46,27 @@ void sendSMS(String phone, String message){
 
 bool simInit()
 {
-    bool result = true;
+  bool result = true;
     
-    String res = "";
-    res=sendATCommand("ATE0\r\n", true);
-    res.trim();
-    if(res != "OK")
-        result = false;
-
-    res = "";
-    res = sendATCommand("AT\r\n", true);  
-    res.trim();
-    if(res != "OK")
-        result = false;
-
-    return result;
-    res = "";
-    res=sendATCommand("AT+CREG?\r\n", true);
-    String res2 = res.substring(9,12);
-    if(res2 != "0,1")
+  String response = "";
+  response = sendATCommand("ATE0\r\n", true);
+  response.trim();
+  if(response != "OK")
       result = false;
-    
+      
+  response = "";
+  response = sendATCommand("AT\r\n", true);  
+  response.trim();
+  if(response != "OK")
+      result = false;
 
-   return result;
+  response = "";
+  response = sendATCommand("AT+CREG?\r\n", true);
+  String res2 = response.substring(9,12);
+  if(res2 != "0,1")
+    result = false;
+
+  return result;
 }
 
 
