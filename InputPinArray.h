@@ -6,8 +6,8 @@
 
 struct InputPinArray
 {    
-    String knsProblem         = "Проблемы с ";
-    String knsProblemResolved = "Проблемы решены с "; 
+    String knsProblem         = " требует вмешательства";
+    String knsProblemResolved = " вернулась в работу в штатном режиме"; 
 
     void addPin(int p, String&& id){
         if(counter < SIZE){
@@ -35,7 +35,7 @@ struct InputPinArray
                 result = false;
                 if(array[i].statusChanged)
                 {
-                    String message = knsProblem + array[i].id;
+                    String message = array[i].id + knsProblem;
                     array[i].statusChanged = false;
                     pager->sendAllSms(message);   
                 }
@@ -43,7 +43,7 @@ struct InputPinArray
             else if(array[i].statusChanged)
             {
                 array[i].statusChanged = false;
-                String message = knsProblemResolved + array[i].id;
+                String message = array[i].id +  knsProblemResolved;
                 pager->sendAllSms(message);   
             }
             

@@ -22,11 +22,10 @@ InputPinArray pins;
 Pager pager;
 
 void setup(){
-  pins.addPin(4, "КНС ОСНОВА");
-  pins.addPin(7, "КНС ДУШ");
+  pins.addPin(4, "КНС1");
+  pins.addPin(7, "КНС2");
   pins.initPins();
 
-  // Serial.begin(9600);
   gsm.begin(9600);
   
   pager.phoneBook.addNumber("+79636556042");
@@ -42,7 +41,7 @@ void timerEventInit()
 
     status = Status::Starting;
     delay(4000);
-    pager.sendAllSms(F("Модуль запущен!")); 
+    pager.sendAllSms(F("Система контроля работ насосных систем перезапущена")); 
   }
 }
 
@@ -52,12 +51,12 @@ void timerEventStarting()
   if(pins.checkPins())
   {
     status = Status::Good;
-    pager.sendAllSms(F("Все системы работают"));
+    pager.sendAllSms(F("КНС1,КНС2 работают штатно"));
   }
   else
   {
     status = Status::Bad;
-    pager.sendAllSms(F("Статус бэд!"));  
+    pager.sendAllSms(F("Необходимо опросить шкаф управления КНС на наличие неисправностей"));  
     BadTimerEvent = millis() + SixHourstDelta;
     GoodTimerEvent = 0;
     return;
@@ -77,7 +76,7 @@ void timerEventGood()
   
   if(millis() > GoodTimerEvent)
   {
-     pager.sendAllSms(F("Все системы работают"));  
+     pager.sendAllSms(F("КНС1,КНС2 работают штатно"));  
      GoodTimerEvent = millis() + DayDelta;
   }
 }
@@ -95,7 +94,7 @@ void timerEventBad()
 
   if(millis() > BadTimerEvent)
   {    
-     pager.sendAllSms(F("Статус бэд!"));  
+     pager.sendAllSms(F("Необходимо опросить шкаф управления КНС на наличие неисправностей"));  
      BadTimerEvent = millis() + SixHourstDelta;
   }
 }
