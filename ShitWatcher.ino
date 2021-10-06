@@ -22,8 +22,8 @@ InputPinArray pins;
 Pager pager;
 
 void setup(){
-  pins.addPin(4, "КНС1");
-  pins.addPin(7, "КНС2");
+  pins.addPin(4, "KNS1");
+  pins.addPin(7, "KNS2");
   pins.initPins();
 
   gsm.begin(9600);
@@ -41,7 +41,7 @@ void timerEventInit()
 
     status = Status::Starting;
     delay(4000);
-    pager.sendAllSms(F("Система контроля работ насосных систем перезапущена")); 
+    pager.sendAllSms(F("Control system restarted")); 
   }
 }
 
@@ -51,12 +51,12 @@ void timerEventStarting()
   if(pins.checkPins())
   {
     status = Status::Good;
-    pager.sendAllSms(F("КНС1,КНС2 работают штатно"));
+    pager.sendAllSms(F("KNS1,KNS2 are working normally"));
   }
   else
   {
     status = Status::Bad;
-    pager.sendAllSms(F("Необходимо опросить шкаф управления КНС на наличие неисправностей"));  
+    pager.sendAllSms(F("Check kns control cabinet for problems"));  
     BadTimerEvent = millis() + SixHourstDelta;
     GoodTimerEvent = 0;
     return;
@@ -76,7 +76,7 @@ void timerEventGood()
   
   if(millis() > GoodTimerEvent)
   {
-     pager.sendAllSms(F("КНС1,КНС2 работают штатно"));  
+     pager.sendAllSms(F("KNS1,KNS2 are working normally"));  
      GoodTimerEvent = millis() + DayDelta;
   }
 }
@@ -88,13 +88,13 @@ void timerEventBad()
   {
     status = Status::Good;
     GoodTimerEvent = millis() + DayDelta;
-    pager.sendAllSms("Система вернулась к работе");
+    pager.sendAllSms("Control system returned to work");
     return;
   }
 
   if(millis() > BadTimerEvent)
   {    
-     pager.sendAllSms(F("Необходимо опросить шкаф управления КНС на наличие неисправностей"));  
+     pager.sendAllSms(F("Check kns control cabinet for problems"));  
      BadTimerEvent = millis() + SixHourstDelta;
   }
 }

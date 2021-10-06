@@ -6,8 +6,8 @@
 
 struct InputPinArray
 {    
-    String knsProblem         = " требует вмешательства";
-    String knsProblemResolved = " вернулась в работу в штатном режиме"; 
+    String knsProblem         = " has a problem";
+    String knsProblemResolved = " returned to regular mode"; 
 
     void addPin(int p, String&& id){
         if(counter < SIZE){
