@@ -28,7 +28,6 @@ void setup(){
 
   gsm.begin(9600);
 
-  Serial.println("PRIVET"); 
   pager.phoneBook.addNumber("+79636556042");
   pager.phoneBook.addNumber("+79265527150");
   pins.pager = &pager;
