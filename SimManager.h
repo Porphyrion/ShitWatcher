@@ -110,6 +110,7 @@ void getPDUPack(String& phone, String& message, String& result, int& PDUlen)
   // Convert to UCS2-format
   String msg = StringToUCS2(message);
   // UDL (User Data Length)
+
   result += byteToHexString(msg.length() / 2);
   result += msg;
   // Packet len witout SCA

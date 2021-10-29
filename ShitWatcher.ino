@@ -27,7 +27,8 @@ void setup(){
   pins.initPins();
 
   gsm.begin(9600);
-  
+
+  Serial.println("PRIVET"); 
   pager.phoneBook.addNumber("+79636556042");
   pager.phoneBook.addNumber("+79265527150");
   pins.pager = &pager;
@@ -38,10 +39,9 @@ void timerEventInit()
 {
   if(simInit())
   {
-
     status = Status::Starting;
     delay(4000);
-    pager.sendAllSms(F("Система контроля работ насосных систем перезапущена")); 
+    pager.sendAllSms(F("Система контроля КНС перезапущена")); 
   }
 }
 
@@ -56,7 +56,7 @@ void timerEventStarting()
   else
   {
     status = Status::Bad;
-    pager.sendAllSms(F("Необходимо опросить шкаф управления КНС на наличие неисправностей"));  
+    pager.sendAllSms(F("КНС требует вмешательства"));  
     BadTimerEvent = millis() + SixHourstDelta;
     GoodTimerEvent = 0;
     return;
@@ -88,13 +88,13 @@ void timerEventBad()
   {
     status = Status::Good;
     GoodTimerEvent = millis() + DayDelta;
-    pager.sendAllSms("Система вернулась к работе");
+    pager.sendAllSms(F("Система вернулась к работе"));
     return;
   }
 
   if(millis() > BadTimerEvent)
   {    
-     pager.sendAllSms(F("Необходимо опросить шкаф управления КНС на наличие неисправностей"));  
+     pager.sendAllSms(F("КНС требует вмешательства"));  
      BadTimerEvent = millis() + SixHourstDelta;
   }
 }
