@@ -10,6 +10,8 @@ struct Pager
 
     void sendAllSms(String text)
     {   
+        sendATCommand("AT+CMGDA=\"DEL ALL\"\r\n", true);
+        delay(2000);
         for(int i = 0; i < phoneBook.size(); ++i)
         {
          sendSMSinPDU(phoneBook[i], text);
