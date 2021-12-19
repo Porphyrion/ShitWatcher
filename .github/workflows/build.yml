@@ -1,6 +1,9 @@
 # This is the name of the workflow, visible on GitHub UI.
 name: test
-on: [push, pull_request] 
+on: [push, pull_request]
+  branches: master
+  tags: '*'
+  
 jobs:
   test-matrix:
     strategy:
@@ -29,9 +32,10 @@ jobs:
           arduino-cli lib install queue
 
       - name: Compile Sketch
-        run: arduino-cli compile --fqbn amperka-iskra:avr:iskra-nano-pro --build-path ./buid .
+        run: arduino-cli compile --fqbn amperka-iskra:avr:iskra-nano-pro --build-path ./build .
 
-      - uses: actions/upload-artifact@v2
-        with:
-            name: my-artifact
-            path: .
+     - uses: ncipollo/release-action@v1
+       with:
+        artifacts: 
+        bodyFile: 
+        token: ${{ secrets.GITHUB_TOKEN }}

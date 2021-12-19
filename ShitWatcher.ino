@@ -22,8 +22,10 @@ InputPinArray pins;
 Pager pager;
 
 void setup(){
-  pins.addPin(4, "КНС1");
-  pins.addPin(7, "КНС2");
+  pins.addPin(7, "КНС ОСНОВА");
+  pins.addPin(6, "КНС ДУШ");
+  pins.addPin(5, "ПИТАНИЕ");
+
   pins.initPins();
 
   gsm.begin(9600);
@@ -50,7 +52,7 @@ void timerEventStarting()
   if(pins.checkPins())
   {
     status = Status::Good;
-    pager.sendAllSms(F("КНС1,КНС2 работают штатно"));
+    pager.sendAllSms(F("Все системы работают штатно"));
   }
   else
   {
@@ -75,7 +77,7 @@ void timerEventGood()
   
   if(millis() > GoodTimerEvent)
   {
-     pager.sendAllSms(F("КНС1,КНС2 работают штатно"));  
+     pager.sendAllSms(F("Все системы работают штатно"));  
      GoodTimerEvent = millis() + DayDelta;
   }
 }
