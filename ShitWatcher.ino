@@ -29,6 +29,7 @@ void setup(){
   pins.initPins();
 
   gsm.begin(9600);
+  Serial.begin(9600);
 
   pager.phoneBook.addNumber("+79636556042");
   pager.phoneBook.addNumber("+79265527150");
@@ -38,17 +39,20 @@ void setup(){
 
 void timerEventInit()
 {
+  Serial.println("Checking sim...");
   if(simInit())
   {
     status = Status::Starting;
     delay(4000);
     pager.sendAllSms(F("Система контроля КНС перезапущена")); 
+    Serial.println("Sim was init");
   }
 }
 
 
 void timerEventStarting()
 { 
+  Serial.println("Checking initial status");
   if(pins.checkPins())
   {
     status = Status::Good;
@@ -67,6 +71,7 @@ void timerEventStarting()
 
 void timerEventGood()
 {
+  Serial.println("Standart good event");
   if(!pins.checkPins())
   {
     status = Status::Bad;
@@ -85,6 +90,7 @@ void timerEventGood()
 
 void timerEventBad()
 {
+    Serial.println("Standart bad event");
   if(pins.checkPins())
   {
     status = Status::Good;
