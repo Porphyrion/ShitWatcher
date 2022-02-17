@@ -1,6 +1,10 @@
 #include "Pager.h"
 #include "InputPinArray.h"
 
+
+//#define DEBUG_LOGIC true
+
+
 enum Status
 {
   Init, 
@@ -26,6 +30,10 @@ void setup(){
   pins.addPin(7, "KNS2");
   pins.initPins();
 
+  #ifdef DEBUG_SMS
+    Serial.begin(9600);
+  #endif
+
   gsm.begin(9600);
   
   pager.phoneBook.addNumber("+79636556042");
@@ -36,9 +44,12 @@ void setup(){
 
 void timerEventInit()
 {
+#ifdef DEBUG_LOGIC
+  Serial.println("Init event");
+#endif
+
   if(simInit())
   {
-
     status = Status::Starting;
     delay(4000);
     pager.sendAllSms(F("Control system restarted")); 
@@ -48,6 +59,9 @@ void timerEventInit()
 
 void timerEventStarting()
 { 
+#ifdef DEBUG_LOGIC
+  Serial.println("Starting event");
+#endif
   if(pins.checkPins())
   {
     status = Status::Good;
@@ -66,6 +80,9 @@ void timerEventStarting()
 
 void timerEventGood()
 {
+#ifdef DEBUG_LOGIC
+  Serial.println("Good event");
+#endif
   if(!pins.checkPins())
   {
     status = Status::Bad;
@@ -84,6 +101,9 @@ void timerEventGood()
 
 void timerEventBad()
 {
+#ifdef DEBUG_LOGIC
+  Serial.println("Bad event");
+#endif
   if(pins.checkPins())
   {
     status = Status::Good;

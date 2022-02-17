@@ -4,6 +4,10 @@
 
 #define SIM800_RX 9
 #define SIM800_TX 8
+#define DEBUG_SMS true
+
+#define SIM800_RX 8
+#define SIM800_TX 9
 
 
 SoftwareSerial gsm(SIM800_TX, SIM800_RX);
@@ -29,6 +33,11 @@ String sendATCommand(String cmd, bool waiting){
       cmdResp = waitResponse();
     }
     
+#ifdef DEBUG_SMS
+    Serial.print(cmd + " ");
+    Serial.println(cmdResp);
+#endif
+
     int isError = cmdResp.indexOf("ERROR");
     if(isError > 0)
       cmdResp = F("ERROR");
@@ -65,6 +74,14 @@ bool simInit()
   String res2 = response.substring(9,12);
   if(res2 != "0,1")
     result = false;
+
+  sendATCommand("AT+CMEE=2\r\n", true);
+  sendATCommand("AT+CMGF=1;&W\r\n", true);
+  sendATCommand("AT+CPMS?\r\n", true);
+  sendATCommand("AT+CSCA?\r\n", true);
+  sendATCommand("AT+CPAS\r\n", true);
+  sendATCommand("AT+CGMR\r\n", true);
+  sendATCommand("AT+COPS?\r\n", true);
 
   return result;
 }
