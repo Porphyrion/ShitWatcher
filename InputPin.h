@@ -26,8 +26,12 @@ struct InputPin
     
     bool workingStatus = true;
     bool statusChanged = false;
-    String id;
+
     int pin;
+    
+    String title;
+    String problemMessage;
+    String resolvedMessage;
 };
 
 #endif

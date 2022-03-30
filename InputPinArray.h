@@ -6,16 +6,15 @@
 
 struct InputPinArray
 {    
-    String knsProblem         = " has a problem";
-    String knsProblemResolved = " returned to regular mode"; 
-
-    void addPin(int p, String&& id){
+    void addPin(int p, String title, String pMessage, String& rMessage){
         if(counter < SIZE){
             InputPin pin;
             pin.pin = p;
-            pin.id = id;
+            pin.title = title;
+            pin.problemMessage = pMessage;
+            pin.resolvedMessage = rMessage; 
             this->array[counter] = pin;
-            counter++;
+            ++counter;
         }
         return;
     }
@@ -30,25 +29,33 @@ struct InputPinArray
         bool result = true;
         for (int i = 0; i < SIZE; ++i)
         {
-            array[i].checkStatus();
-            if(!array[i].workingStatus){
-                result = false;
-                if(array[i].statusChanged)
-                {
-                    String message = array[i].id + knsProblem;
-                    array[i].statusChanged = false;
-                    pager->sendAllSms(message);   
-                }
-            }
-            else if(array[i].statusChanged)
+            InputPin& pin = array[i];
+            pin.checkStatus();
+
+            if(!pin.workingStatus)
             {
-                array[i].statusChanged = false;
-                String message = array[i].id +  knsProblemResolved;
-                pager->sendAllSms(message);   
+                result = false;
+                if(pin.statusChanged)
+                    pinTurnedOff(pin);
             }
-            
+            else if(pin.statusChanged)
+                pinTurnedOn(pin);            
         }
         return result;
+    }
+ 
+    void pinTurnedOff(InputPin& pin)
+    {
+        String message = pin.title + pin.problemMessage;
+        pin.statusChanged = false;
+        pager->sendAllSms(message);   
+    }
+
+    void pinTurnedOn(InputPin& pin)
+    {
+        pin.statusChanged = false;
+        String message = pin.title + pin.resolvedMessage;
+        pager->sendAllSms(message);   
     }
 
     static const int SIZE = 2;

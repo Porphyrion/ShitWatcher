@@ -1,10 +1,7 @@
 #include <SoftwareSerial.h>
 #include "PDUDecoder.h"
 
-
-#define SIM800_RX 9
-#define SIM800_TX 8
-#define DEBUG_SMS true
+#define DEBUG_SMS false
 
 #define SIM800_RX 8
 #define SIM800_TX 9

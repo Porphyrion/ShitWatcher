@@ -1,6 +1,6 @@
 #include "Pager.h"
 #include "InputPinArray.h"
-
+#include "ChargeControl.h"
 
 //#define DEBUG_LOGIC true
 
@@ -13,21 +13,28 @@ enum Status
   Bad
 };
 
+
 Status status = Status::Init;
+
  
-unsigned long GoodTimerEvent  = 7200000;
-unsigned long BadTimerEvent   = 0;
+unsigned long  GoodTimerEvent  = 7200000;
+unsigned long  BadTimerEvent   = 0;
 
 const unsigned long DayDelta       = 7200000;
 const unsigned long SixHourstDelta = 3600000;
 
+String knsProblem         = " has a problem";
+String knsProblemResolved = " returned to regular mode"; 
 
 InputPinArray pins;
+ChargeControl charge;
 Pager pager;
 
 void setup(){
-  pins.addPin(4, "KNS1");
-  pins.addPin(7, "KNS2");
+  pins.addPin(7, "KNS main", knsProblem, knsProblemResolved);
+  pins.addPin(6, "KNS shower", knsProblem, knsProblemResolved);
+
+  charge.init(5);
   pins.initPins();
 
   #ifdef DEBUG_SMS
@@ -38,7 +45,10 @@ void setup(){
   
   pager.phoneBook.addNumber("+79636556042");
   pager.phoneBook.addNumber("+79265527150");
+  pager.phoneBook.addNumber("+79999878814");
+
   pins.pager = &pager;
+  charge.pager = &pager;
 }
 
 
@@ -138,4 +148,6 @@ void loop() {
      default:
       break;
   }
+
+  charge.check();
 };
