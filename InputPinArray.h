@@ -6,7 +6,7 @@
 
 struct InputPinArray
 {    
-    void addPin(int p, String title, String pMessage, String& rMessage){
+    void addPin(int p, String title, String& pMessage, String& rMessage){
         if(counter < SIZE){
             InputPin pin;
             pin.pin = p;
@@ -58,7 +58,7 @@ struct InputPinArray
         pager->sendAllSms(message);   
     }
 
-    static const int SIZE = 2;
+    static const int SIZE = 3;
     unsigned int counter = 0;
     InputPin array[SIZE];
     Pager* pager;

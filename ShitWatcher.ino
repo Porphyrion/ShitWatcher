@@ -1,6 +1,5 @@
 #include "Pager.h"
 #include "InputPinArray.h"
-#include "ChargeControl.h"
 
 //#define DEBUG_LOGIC true
 
@@ -25,16 +24,17 @@ const unsigned long SixHourstDelta = 3600000;
 
 String knsProblem         = " has a problem";
 String knsProblemResolved = " returned to regular mode"; 
+String chargeProblem = " turned off";
+String chargeProblemResolved = " turned on";
 
 InputPinArray pins;
-ChargeControl charge;
 Pager pager;
 
 void setup(){
   pins.addPin(7, "KNS main", knsProblem, knsProblemResolved);
   pins.addPin(6, "KNS shower", knsProblem, knsProblemResolved);
+  pins.addPin(5, "Charge", chargeProblem, chargeProblemResolved);
 
-  charge.init(5);
   pins.initPins();
 
   #ifdef DEBUG_SMS
@@ -48,7 +48,6 @@ void setup(){
   pager.phoneBook.addNumber("+79999878814");
 
   pins.pager = &pager;
-  charge.pager = &pager;
 }
 
 
@@ -148,6 +147,4 @@ void loop() {
      default:
       break;
   }
-
-  charge.check();
 };

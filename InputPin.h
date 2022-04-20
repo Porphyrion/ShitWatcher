@@ -34,4 +34,5 @@ struct InputPin
     String resolvedMessage;
 };
 
+
 #endif
